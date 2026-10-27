@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: lint, typecheck, test, build
+    runs-on: ubuntu-latest
+    env:
+      NEXT_TELEMETRY_DISABLED: 1
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Smoke test (start the server and request each page)
+        run: |
+          npm start -- -p 3000 &
+          for i in $(seq 1 30); do curl -fs http://localhost:3000/ > /dev/null && break; sleep 1; done
+          for path in / "/?period=30d&channel=own_store" "/?period=365d" /customers; do
+            curl -fsS -o /dev/null -w "%{http_code} $path\n" "http://localhost:3000$path"
+          done
