@@ -67,6 +67,27 @@ flowchart LR
 - **No chart library.** The line chart and the matrix are small SVG/HTML components, which
   keeps the bundle small and the styling consistent in light and dark mode.
 
+## Tech stack
+
+- **Next.js 16** (App Router, React Server Components), **React 19**
+- **TypeScript 5.9** in strict mode with `noUncheckedIndexedAccess`
+- **@google-cloud/bigquery** for the BigQuery data source
+- **Vitest** for unit tests, **ESLint** with `eslint-config-next`
+- **GitHub Actions** for CI, **Docker** (`standalone` output) for Cloud Run
+
+## Tests
+
+22 unit tests run with Vitest:
+
+- **Metrics**: ratios come from totals, no division by zero, weekly buckets keep every row exactly once
+- **Periods**: UTC date math across month ends and leap years, unknown query values fall back to the default
+- **Sample data**: the bundled files decode, and their totals match the mart
+- **BigQuery source**: unsafe dataset names are rejected, the lookback window is a query parameter,
+  non-numeric values fail loudly, and the cache drops failures and expires
+
+CI also starts the production server and requests every page, so a page that fails to render
+breaks the build.
+
 ## Run it locally
 
 Requires Node.js 20.9+.
