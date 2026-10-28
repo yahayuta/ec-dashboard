@@ -67,6 +67,25 @@ flowchart LR
 - **No chart library.** The line chart and the matrix are small SVG/HTML components, which
   keeps the bundle small and the styling consistent in light and dark mode.
 
+## From field problems to design decisions
+
+| Problem in the field | Decision in this repository |
+|---|---|
+| Building each dashboard in a BI tool takes a lot of effort | Dashboard as code, split into small parts, so a change request becomes a small diff that AI can draft and a person can review |
+| Teams report different revenue numbers | Metrics are defined once in dbt; the app only adds up mart rows |
+| Ratios that look right but are not (averaging daily AOV) | Ratios come from totals; rate changes are shown in percentage points |
+| Credentials or SQL reaching the browser | Data is read only in Server Components, in a `server-only` module |
+| BigQuery cost growing with page views | Results are cached for 10 minutes; RFM is read as a 25-row aggregate |
+| Numbers changing daily although the data has not | Periods end on the latest date in the data |
+
+## How it was built
+
+Built with an AI coding assistant (Claude) in under an hour, from the first request to a green CI run.
+
+- **Me**: chose what to build and for whom, set the constraints (synthetic data only, no secrets,
+  deploys must not break), checked the running app, and decided the direction.
+- **AI**: proposed the design and wrote the code, tests, CI and this README.
+
 ## Tech stack
 
 - **Next.js 16** (App Router, React Server Components), **React 19**
